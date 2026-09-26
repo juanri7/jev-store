@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jev's Store — the feed that reads your mind</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">J</div>
+    <div>
+      <h1>Jev's Store</h1>
+      <p class="tagline">The feed that reads your mind · powered by Jev (system-one)</p>
+    </div>
+  </div>
+  <div class="controls">
+    <label class="jev-toggle" title="Toggle Jev adaptive ranking vs plain popularity">
+      <span class="toggle-label">Jev</span>
+      <button id="jevSwitch" class="switch on" role="switch" aria-checked="true" aria-label="Toggle Jev personalization">
+        <span class="knob"></span>
+      </button>
+      <span id="jevModeLabel" class="mode-label">adaptive</span>
+    </label>
+    <button id="resetBtn" class="ghost-btn">Reset session</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <section class="panel" id="ghostPanel">
+      <h2>What Jev thinks you want</h2>
+      <p class="hint">Hover products for ~1s and watch this update.</p>
+      <div id="ghostBars" class="ghost-bars"><p class="empty">No signals yet — go browse.</p></div>
+    </section>
+
+    <section class="panel">
+      <h2>Proof mode</h2>
+      <p class="hint">Same UI, two ranking modes. Engagement per mode:</p>
+      <div class="metrics">
+        <div class="metric-col" id="metricOn">
+          <h3>Jev ON</h3>
+          <dl>
+            <div><dt>Hovers</dt><dd data-m="hovers">0</dd></div>
+            <div><dt>Avg dwell</dt><dd data-m="dwell">–</dd></div>
+            <div><dt>Clicks</dt><dd data-m="clicks">0</dd></div>
+            <div><dt>Carts</dt><dd data-m="carts">0</dd></div>
+          </dl>
+        </div>
+        <div class="metric-col" id="metricOff">
+          <h3>Jev OFF</h3>
+          <dl>
+            <div><dt>Hovers</dt><dd data-m="hovers">0</dd></div>
+            <div><dt>Avg dwell</dt><dd data-m="dwell">–</dd></div>
+            <div><dt>Clicks</dt><dd data-m="clicks">0</dd></div>
+            <div><dt>Carts</dt><dd data-m="carts">0</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel how">
+      <h2>How it works</h2>
+      <ol>
+        <li>Hover dwell, clicks &amp; carts stream to Jev.</li>
+        <li>Jev scores your interest per category (<em>Noul</em>).</li>
+        <li>Every 3rd row is pre-filled by Jev (<em>Choice</em>) with match&nbsp;% badges.</li>
+        <li>Flip the toggle to compare against popularity ranking.</li>
+      </ol>
+    </section>
+  </aside>
+
+  <main class="feed-wrap">
+    <div id="feedBanner" class="feed-banner jev">
+      <span class="dot"></span><span id="feedBannerText">Jev adaptive ranking is ON — rows ahead are picked for you.</span>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div id="sentinel" class="sentinel"><div class="spinner"></div></div>
+    <p id="endMsg" class="end-msg hidden">You've browsed the whole store.
+      <button id="reshuffleBtn" class="ghost-btn">Reshuffle &amp; keep going</button>
+    </p>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
