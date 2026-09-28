@@ -103,6 +103,11 @@ body {
 .card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,.10); }
 .card .img-wrap { position: relative; aspect-ratio: 1; background: linear-gradient(135deg, #efe9dc, #e2d9c8); overflow: hidden; }
 .card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.img-fallback {
+  width: 100%; height: 100%; display: grid; place-items: center;
+  font-size: 64px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--accent), #9d8cff);
+}
 .badge {
   position: absolute; top: 8px; left: 8px; font-size: 11px; font-weight: 800;
   padding: 4px 9px; border-radius: 999px; color: #fff; background: var(--jev);

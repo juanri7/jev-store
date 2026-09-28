@@ -49,8 +49,8 @@ function cardHTML(p, badge) {
   return `
   <article class="card" data-sku="${esc(p.sku)}">
     <div class="img-wrap">
-      <img loading="lazy" src="${esc(p.image)}" alt="${esc(p.title)}"
-           onerror="this.style.display='none'">
+      <img loading="lazy" src="${esc(p.image)}" alt="${esc(p.title)}" data-letter="${esc((p.title || "?").trim().charAt(0))}"
+           onerror="imgFallback(this)">
       ${badge || ""}
     </div>
     <div class="body">
@@ -68,6 +68,16 @@ function cardHTML(p, badge) {
 function badgeFor(pct, explore) {
   if (pct == null) return `<span class="badge explore">✦ exploring</span>`;
   return `<span class="badge" title="Jev match score">${pct}% match</span>`;
+}
+
+/* If the photo CDN is unreachable (blocker, firewall, offline), show a
+   monogram tile instead of silently hiding the image. */
+function imgFallback(img) {
+  const s = document.createElement("div");
+  s.className = "img-fallback";
+  s.setAttribute("aria-hidden", "true");
+  s.textContent = (img.dataset.letter || "?").toUpperCase();
+  img.replaceWith(s);
 }
 
 function attachCard(el) {
