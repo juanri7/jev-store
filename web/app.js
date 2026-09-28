@@ -276,13 +276,23 @@ function renderGhost() {
   const tops = topCats(5);
   if (!tops.length) {
     box.innerHTML = `<p class="empty">No signals yet — go browse.</p>`;
-    return;
-  }
-  box.innerHTML = tops.map(([c, s, isJev]) => `
+  } else {
+    box.innerHTML = tops.map(([c, s, isJev]) => `
     <div class="ghost-row${isJev ? " jev" : ""}">
       <div class="lbl"><span>${esc(c)}</span><span>${Math.round(s * 100)}%</span></div>
       <div class="bar"><div class="fill" style="width:${Math.round(s * 100)}%"></div></div>
     </div>`).join("");
+  }
+  // mobile strip + bottom sheet mirror the same state
+  const chips = $("#stripChips");
+  if (chips) {
+    chips.innerHTML = tops.length
+      ? tops.slice(0, 3).map(([c, s, isJev]) =>
+          `<span class="chip${isJev ? " jev" : ""}">${esc(c)} ${Math.round(s * 100)}%</span>`).join("")
+      : `<span class="strip-empty">Browse — Jev starts reading you</span>`;
+  }
+  const sb = $("#sheetBars");
+  if (sb) sb.innerHTML = box.innerHTML;
 }
 
 /* ---------- linger detection (slow-scroll corroboration) ---------- */
@@ -317,16 +327,16 @@ setInterval(() => {
 
 /* ---------- metrics / toggle / reset ---------- */
 function renderMetrics() {
-  for (const key of ["on", "off"]) {
-    const m = S.metrics[key];
-    const col = key === "on" ? $("#metricOn") : $("#metricOff");
-    col.classList.toggle("active", (key === "on") === S.jevOn);
+  document.querySelectorAll("[data-mode]").forEach((col) => {
+    const on = col.dataset.mode === "on";
+    const m = on ? S.metrics.on : S.metrics.off;
+    col.classList.toggle("active", on === S.jevOn);
     col.querySelector('[data-m="hovers"]').textContent = m.hovers;
     col.querySelector('[data-m="dwell"]').textContent =
       m.hovers ? (m.dwellMs / m.hovers / 1000).toFixed(1) + "s" : "–";
     col.querySelector('[data-m="clicks"]').textContent = m.clicks;
     col.querySelector('[data-m="carts"]').textContent = m.carts;
-  }
+  });
 }
 
 function setJev(on) {
@@ -371,6 +381,18 @@ function rebuild() {
 $("#jevSwitch").addEventListener("click", () => setJev(!S.jevOn));
 $("#resetBtn").addEventListener("click", () => { rebuild(); toast("Session reset"); });
 $("#reshuffleBtn").addEventListener("click", rebuild);
+
+/* bottom sheet (mobile tracker detail) */
+const sheet = $("#sheet"), sheetBack = $("#sheetBack");
+function setSheet(open) {
+  sheet.hidden = !open;
+  sheetBack.hidden = !open;
+  document.body.classList.toggle("noscroll", open);
+}
+$("#stripBtn").addEventListener("click", () => setSheet(true));
+$("#sheetClose").addEventListener("click", () => setSheet(false));
+sheetBack.addEventListener("click", () => setSheet(false));
+window.addEventListener("keydown", (e) => { if (e.key === "Escape") setSheet(false); });
 
 const observer = new IntersectionObserver((entries) => {
   if (entries[0].isIntersecting && !S.loading && S.queue.length) {
