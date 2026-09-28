@@ -87,5 +87,21 @@ for stable rebuilds.
 
 ## Explainer + video
 
-Plain-English walkthrough and 25-second demo video:
+Plain-English walkthrough and 30-second demo video:
 [jevstore-explainer](https://github.com/juanri7/jevstore-explainer).
+
+## Deploy to Vercel
+
+The repo is Vercel-ready: static frontend (`web/`) plus serverless
+functions (`api/profile.py`, `api/rank.py`, `api/catalog.py`) that run the
+same scoring as `server/app.py`. The frontend needs no changes: `/`
+serves the store and `/api/*` hits the functions (see `vercel.json`).
+
+1. Import `juanri7/jev-store` in the Vercel dashboard (no build settings needed).
+2. Add an environment variable `JEV_API_KEY` (your Typesafe key) for all
+   environments. The functions read it with `os.environ` — no key in the repo.
+3. Deploy. Each Jev round-trip is capped at ~8s to fit serverless limits;
+   without a key the endpoints return empty results and the feed falls back
+   to popularity/local ranking.
+
+Keep developing locally with `python server/app.py` as before.
