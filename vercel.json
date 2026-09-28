@@ -3,7 +3,8 @@
   "rewrites": [
     { "source": "/", "destination": "/web/index.html" },
     { "source": "/app.js", "destination": "/web/app.js" },
-    { "source": "/styles.css", "destination": "/web/styles.css" }
+    { "source": "/styles.css", "destination": "/web/styles.css" },
+    { "source": "/img/:file", "destination": "/web/img/:file" }
   ],
   "functions": {
     "api/*.py": { "maxDuration": 30 }

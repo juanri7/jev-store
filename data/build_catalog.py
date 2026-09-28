@@ -4,15 +4,20 @@
 Seed: 194 real product records from dummyjson (real titles, prices,
 categories, hosted photos). Variants: mocked colors/sizes/finishes + price
 jitter, seeded RNG so rebuilds are stable. Output: ~600 SKUs.
+Product photos are downloaded into web/img/ and referenced by local path so
+the demo (and any deployment) never depends on the photo CDN at browse time.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 OUT = Path(__file__).parent / "catalog.json"
+IMG_DIR = Path(__file__).parent.parent / "web" / "img"
 RNG = random.Random(20260926)
 
 COLORS = ["Onyx Black", "Arctic White", "Navy", "Forest Green", "Crimson",
@@ -87,11 +92,37 @@ def variants_for(p: dict) -> list[dict]:
     return out
 
 
+def local_name(url: str) -> str:
+    return "img/h" + hashlib.md5(url.encode()).hexdigest()[:12] + ".webp"
+
+
+def fetch_image(url: str) -> None:
+    dest = IMG_DIR / local_name(url).split("/", 1)[1]
+    if dest.exists():
+        return
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        dest.write_bytes(resp.read())
+
+
 def main() -> None:
     products = fetch_products()
     catalog: list[dict] = []
     for p in products:
         catalog.extend(variants_for(p))
+    # Self-host photos: download once, reference local paths (remote kept
+    # as remote_image(s) for provenance). Browse-time never hits the CDN.
+    IMG_DIR.mkdir(parents=True, exist_ok=True)
+    urls = list(dict.fromkeys(
+        u for p in catalog for u in ([p["image"]] + p["images"]) if u
+    ))
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        list(ex.map(fetch_image, urls))
+    for p in catalog:
+        p["remote_image"] = p["image"]
+        p["image"] = local_name(p["image"])
+        p["remote_images"] = list(p["images"])
+        p["images"] = [local_name(u) for u in p["images"]]
     # Deterministic shuffle so the feed isn't category-clumped
     RNG.shuffle(catalog)
     payload = {
