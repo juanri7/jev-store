@@ -1,7 +1,10 @@
 """Vercel serverless function: POST /api/rank -> Choice product ranking."""
 from http.server import BaseHTTPRequestHandler
 import json
+import os
+import sys
 
+sys.path.insert(0, os.path.dirname(__file__))
 from _core import MAX_BODY_BYTES, rank_endpoint
 
 
